@@ -30,5 +30,43 @@ namespace ContactApi.Repository
             await _context.SaveChangesAsync();
             return newMycontact.Id;
         }
+
+        public async Task<MycontactDto> GetMycontactAsync(int Id)
+        {
+            var contactId = await _context.Mycontacts.FindAsync(Id);
+            if (contactId == null) return null;
+            return new MycontactDto()
+            {
+                FullName = contactId.FullName,
+                PhoneNumber = contactId.PhoneNumber,
+                EmailAddress = contactId.EmailAddress,
+                City = contactId.City,
+                Id = contactId.Id,
+                Address = contactId.Address,
+            };
+        }
+
+        public async Task<bool> DeleteMycontactAsync(int Id)
+        {
+            var contactId = await _context.Mycontacts.FindAsync(Id);
+            if (contactId == null)return false;
+            _context.Mycontacts.Remove(contactId);
+            _context.SaveChanges();
+            return true;
+        }
+
+        public async Task<bool> UpdateMycontactAsync(int Id, MycontactDto mycontact)
+        {
+            var existingContact = await _context.Mycontacts.FindAsync(Id);
+            if (existingContact == null) return false;
+            existingContact.FullName = mycontact.FullName;
+            existingContact.Address = mycontact.Address;
+            existingContact.PhoneNumber = mycontact.PhoneNumber;
+            existingContact.EmailAddress = mycontact.EmailAddress;
+            existingContact.City = mycontact.City;
+            existingContact.Id = mycontact.Id;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

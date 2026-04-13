@@ -47,5 +47,38 @@ namespace ContactApi.Controllers
 
 
         }
+        [HttpGet]
+        public async Task<ActionResult<MycontactDto>> GetContactAsync(int Id)
+        {
+            var contact = await _contactRepository.GetMycontactAsync(Id);
+            if (contact == null)
+            {
+                return NotFound($"contact with the {Id}not found");
+            }
+            return Ok(contact);
+        }
+
+        [HttpDelete]
+
+        public async Task<ActionResult>DeleteMycontactAsync(int Id)
+        {
+            var contact = await _contactRepository.DeleteMycontactAsync(Id);
+            if (!contact) 
+            {
+                return NotFound("contact Id not found");
+            }
+            return NoContent();
+
+        }
+
+        [HttpPut]
+
+        public async Task<IActionResult> UpdateMycontact(int Id, MycontactDto request)
+        {
+            var contact = await _contactRepository.UpdateMycontactAsync(Id, request);
+            if (!contact) throw new Exception($"contact with {Id}not found");
+            return Ok($"employee update successfully");
+        }
+        
     }
 }
