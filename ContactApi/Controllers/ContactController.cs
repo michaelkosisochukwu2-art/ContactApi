@@ -26,12 +26,14 @@ namespace ContactApi.Controllers
             _dbContext = context;
             _contactRepository= contactRepository;
         }
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult> GetAllMycontactAsync()
         {
             var contact = await _contactRepository.GetAllMycontactAsync();
             return Ok(contact);
         }
+        [Authorize]
         [HttpPost]
 
         public async Task<ActionResult<MycontactDto>> CreateMycontact([FromBody] MycontactDto request)
@@ -55,6 +57,7 @@ namespace ContactApi.Controllers
 
 
         }
+        [Authorize]
         [HttpGet("{Id}")]
         public async Task<ActionResult<MycontactDto>> GetContactAsync(int Id)
         {
@@ -65,7 +68,7 @@ namespace ContactApi.Controllers
             }
             return Ok(contact);
         }
-
+        [Authorize]
         [HttpDelete]
 
         public async Task<ActionResult>DeleteMycontactAsync(int Id)
@@ -78,7 +81,7 @@ namespace ContactApi.Controllers
             return NoContent();
 
         }
-
+        [Authorize]
         [HttpPut]
 
         public async Task<IActionResult> UpdateMycontact(int Id, MycontactDto request)
