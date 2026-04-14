@@ -1,17 +1,38 @@
 ﻿using ContactApi.Data;
 using ContactApi.Dto;
 using ContactApi.Model;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+
+
 
 namespace ContactApi.Repository
 {
     public class ContactRepository : IContactRepository
     {
-        private readonly IContactRepository _contactRepository;
+       
         private readonly ContactDbContext _context;
         public ContactRepository(ContactDbContext context)
-        { 
+        {
             _context = context;
+           
 
+        }
+        public async Task<List<MycontactDto>>GetAllMycontactAsync()
+        {
+            var allContact = await _context.Mycontacts.ToListAsync();
+            var contactDto = await _context.Mycontacts.Select(e => new MycontactDto
+            {
+                PhoneNumber = e.PhoneNumber,
+                Id=e.Id,
+                EmailAddress=e.Address,
+                City=e.City,
+                Address=e.Address,
+                FullName=e.FullName
+            }).ToListAsync();
+            return contactDto;
+
+            
         }
 
         public async Task<int> AddMycontact(MycontactDto mycontact)

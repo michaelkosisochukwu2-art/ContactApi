@@ -10,9 +10,11 @@ using ContactApi.Data;
 using ContactApi.Dto;
 using ContactApi.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ContactApi.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ContactController : ControllerBase
@@ -23,6 +25,12 @@ namespace ContactApi.Controllers
         {
             _dbContext = context;
             _contactRepository= contactRepository;
+        }
+        [HttpGet]
+        public async Task<ActionResult> GetAllMycontactAsync()
+        {
+            var contact = await _contactRepository.GetAllMycontactAsync();
+            return Ok(contact);
         }
         [HttpPost]
 
@@ -47,7 +55,7 @@ namespace ContactApi.Controllers
 
 
         }
-        [HttpGet]
+        [HttpGet("{Id}")]
         public async Task<ActionResult<MycontactDto>> GetContactAsync(int Id)
         {
             var contact = await _contactRepository.GetMycontactAsync(Id);
