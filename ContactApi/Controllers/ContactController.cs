@@ -26,13 +26,14 @@ namespace ContactApi.Controllers
             _dbContext = context;
             _contactRepository= contactRepository;
         }
-        
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult> GetAllMycontactAsync()
         {
             var contact = await _contactRepository.GetAllMycontactAsync();
             return Ok(contact);
         }
+        [Authorize]
         [Authorize(Roles = "Admin")]
         [HttpPost]
 
@@ -57,7 +58,7 @@ namespace ContactApi.Controllers
 
 
         }
-        
+        [Authorize]
         [HttpGet("{Id}")]
         public async Task<ActionResult<MycontactDto>> GetContactAsync(int Id)
         {

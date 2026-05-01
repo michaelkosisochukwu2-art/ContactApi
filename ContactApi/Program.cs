@@ -10,6 +10,9 @@ using ContactApi.Model;
 using ContactApi.Repository;
 using System;
 using System.Text;
+using System.Security.Claims;
+using ContactApi.Service;
+using ContactApi.Service.IService;
 
 
 
@@ -29,6 +32,8 @@ builder.Services.AddSwaggerGen();
 //Register your repository
 
 builder.Services.AddScoped<IContactRepository, ContactRepository>();
+builder.Services.AddScoped<ICountryService, CountryService>();
+builder.Services.AddHttpClient();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ContactDbContext>()
     .AddDefaultTokenProviders();
@@ -70,7 +75,26 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+
+        //this ensure that  ASP.Net  core recognizes "role claim in the jwt
+        RoleClaimType = ClaimTypes.Role
+    };
+    options.Events = new JwtBearerEvents()
+    {
+        OnChallenge = context=>
+        {
+            context.HandleResponse();
+            context.Response.StatusCode = 401;
+            context.Response.ContentType="application/json";
+
+            var response = new
+            {
+                status= false,
+                Message="you are not authorized. please login to get a valid token."
+            };
+            return context.Response.WriteAsJsonAsync(response);
+        }
     };
 });
 

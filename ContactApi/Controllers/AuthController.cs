@@ -16,12 +16,12 @@ namespace ContactApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IConfiguration configuration;
+        private readonly IConfiguration _configuration;
         private readonly RoleManager<IdentityRole> _roleManager;
         public AuthController(UserManager<ApplicationUser> userManager, IConfiguration configuration, RoleManager<IdentityRole> roleManager)
         {
-            this._userManager = userManager;
-            this.configuration = configuration;
+            _userManager = userManager;
+            _configuration = configuration;
             _roleManager = roleManager;
         }
 
@@ -44,9 +44,11 @@ namespace ContactApi.Controllers
 
 
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto request)
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUp([FromBody] RegisterDto request)
         {
+            if (!await _roleManager.RoleExistsAsync(request.Role))
+                return BadRequest($"Role'{request.Role}' does not exist. please create the role first.");
             var user = new ApplicationUser
             {
                 UserName = request.Email,
@@ -82,7 +84,7 @@ namespace ContactApi.Controllers
 
         private async Task<string> GenerateJwtToken(ApplicationUser user)
         {
-            var jwtKey = configuration["Jwt:Key"]!;
+            var jwtKey = _configuration["Jwt:Key"]!;
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -99,8 +101,8 @@ namespace ContactApi.Controllers
             claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var token = new JwtSecurityToken(
-                issuer: configuration["Jwt:Issuer"],
-                audience: configuration["Jwt:Audience"],
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: creds);
